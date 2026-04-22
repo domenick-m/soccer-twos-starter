@@ -1,8 +1,8 @@
 """
 Trains PPO on SoccerTwos twice under identical hyperparameters:
   (a) baseline/control - default environment reward
-  (b) shaped           - goal-event amplification + optional ball-proximity shaping
-                         (see reward_shaping.RewardShapingWrapper)
+  (b) shaped           - configurable dense reward shaping
+                         (see reward_shaping.DEFAULT_REWARD_SHAPING_CONFIG)
 
 Important: `baseline` here means the unmodified training condition. Training
 does not depend on the packaged `ceia_baseline_agent` used by
