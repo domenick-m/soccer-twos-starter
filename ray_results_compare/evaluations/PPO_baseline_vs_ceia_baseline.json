@@ -1,0 +1,110 @@
+{
+  "run_name": "PPO_baseline",
+  "checkpoint_path": "/home/dmifsud/Projects/DRL/final_project/soccer-twos-starter/ray_results_compare/PPO_baseline/PPO_SoccerBaseline_8a915_00000_0_2026-04-22_12-58-53/checkpoint_000063/checkpoint-63",
+  "eval_episodes": 1,
+  "agent_module": "compare_checkpoint_agent",
+  "baseline_module": "ceia_baseline_agent",
+  "result": {
+    "episode_reward_max": -0.08480000495910645,
+    "episode_reward_min": -0.08480000495910645,
+    "episode_reward_mean": -0.08480000495910645,
+    "episode_len_mean": 42.0,
+    "episodes_this_eval": 1,
+    "policies": {
+      "compare_checkpoint_agent": {
+        "policy_reward_min": 1.9151999950408936,
+        "policy_reward_max": 1.9151999950408936,
+        "policy_reward_mean": 1.9151999950408936,
+        "policy_total_games": 1,
+        "policy_wins": 1,
+        "policy_losses": 0,
+        "policy_draws": 0,
+        "policy_win_rate": 1.0,
+        "blue_team": {
+          "policy_blue_team_reward_min": 1.9151999950408936,
+          "policy_blue_team_reward_max": 1.9151999950408936,
+          "policy_blue_team_reward_mean": 1.9151999950408936,
+          "policy_blue_team_total_games": 1,
+          "policy_blue_team_wins": 1,
+          "policy_blue_team_losses": 0,
+          "policy_blue_team_draws": 0,
+          "policy_blue_team_win_rate": 1.0
+        },
+        "orange_team": {
+          "policy_orange_team_reward_min": null,
+          "policy_orange_team_reward_max": null,
+          "policy_orange_team_reward_mean": null,
+          "policy_orange_team_total_games": 0,
+          "policy_orange_team_wins": 0,
+          "policy_orange_team_losses": 0,
+          "policy_orange_team_draws": 0,
+          "policy_orange_team_win_rate": null
+        }
+      },
+      "ceia_baseline_agent": {
+        "policy_reward_min": -2.0,
+        "policy_reward_max": -2.0,
+        "policy_reward_mean": -2.0,
+        "policy_total_games": 1,
+        "policy_wins": 0,
+        "policy_losses": 1,
+        "policy_draws": 0,
+        "policy_win_rate": 0.0,
+        "blue_team": {
+          "policy_blue_team_reward_min": null,
+          "policy_blue_team_reward_max": null,
+          "policy_blue_team_reward_mean": null,
+          "policy_blue_team_total_games": 0,
+          "policy_blue_team_wins": 0,
+          "policy_blue_team_losses": 0,
+          "policy_blue_team_draws": 0,
+          "policy_blue_team_win_rate": null
+        },
+        "orange_team": {
+          "policy_orange_team_reward_min": -2.0,
+          "policy_orange_team_reward_max": -2.0,
+          "policy_orange_team_reward_mean": -2.0,
+          "policy_orange_team_total_games": 1,
+          "policy_orange_team_wins": 0,
+          "policy_orange_team_losses": 1,
+          "policy_orange_team_draws": 0,
+          "policy_orange_team_win_rate": 0.0
+        }
+      }
+    },
+    "hist_stats": {
+      "compare_checkpoint_agent": {
+        "rewards": [
+          1.9151999950408936
+        ],
+        "blue_team": {
+          "rewards": [
+            1.9151999950408936
+          ]
+        },
+        "orange_team": {
+          "rewards": []
+        }
+      },
+      "ceia_baseline_agent": {
+        "rewards": [
+          -2.0
+        ],
+        "blue_team": {
+          "rewards": []
+        },
+        "orange_team": {
+          "rewards": [
+            -2.0
+          ]
+        }
+      },
+      "episode_reward": [
+        -0.08480000495910645
+      ],
+      "episode_lengths": [
+        42
+      ]
+    }
+  }
+}
