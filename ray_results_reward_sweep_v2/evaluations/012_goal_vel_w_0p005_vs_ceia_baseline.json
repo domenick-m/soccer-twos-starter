@@ -1,0 +1,226 @@
+{
+  "run_name": "012_goal_vel_w_0p005",
+  "checkpoint_path": "/home/dmifsud/Projects/DRL/final_project/soccer-twos-starter/ray_results_reward_sweep_v2/PPO_reward_weight_sweep/012_goal_vel_w_0p005/checkpoint_000126/checkpoint-126",
+  "eval_episodes": 20,
+  "agent_module": "compare_checkpoint_agent",
+  "baseline_module": "ceia_baseline_agent",
+  "result": {
+    "episode_reward_max": -0.019999980926513672,
+    "episode_reward_min": -0.2452000379562378,
+    "episode_reward_mean": -0.09021999835968017,
+    "episode_len_mean": 45.3,
+    "episodes_this_eval": 20,
+    "policies": {
+      "compare_checkpoint_agent": {
+        "policy_reward_min": -2.0,
+        "policy_reward_max": 1.9759999513626099,
+        "policy_reward_mean": -1.2099800050258636,
+        "policy_total_games": 20,
+        "policy_wins": 4,
+        "policy_losses": 16,
+        "policy_draws": 0,
+        "policy_win_rate": 0.2,
+        "blue_team": {
+          "policy_blue_team_reward_min": -2.0,
+          "policy_blue_team_reward_max": 1.9759999513626099,
+          "policy_blue_team_reward_mean": -1.2076800107955932,
+          "policy_blue_team_total_games": 10,
+          "policy_blue_team_wins": 2,
+          "policy_blue_team_losses": 8,
+          "policy_blue_team_draws": 0,
+          "policy_blue_team_win_rate": 0.2
+        },
+        "orange_team": {
+          "policy_orange_team_reward_min": -2.0,
+          "policy_orange_team_reward_max": 1.943600058555603,
+          "policy_orange_team_reward_mean": -1.212279999256134,
+          "policy_orange_team_total_games": 10,
+          "policy_orange_team_wins": 2,
+          "policy_orange_team_losses": 8,
+          "policy_orange_team_draws": 0,
+          "policy_orange_team_win_rate": 0.2
+        }
+      },
+      "ceia_baseline_agent": {
+        "policy_reward_min": -2.0,
+        "policy_reward_max": 1.9800000190734863,
+        "policy_reward_mean": 1.1197600066661835,
+        "policy_total_games": 20,
+        "policy_wins": 16,
+        "policy_losses": 4,
+        "policy_draws": 0,
+        "policy_win_rate": 0.8,
+        "blue_team": {
+          "policy_blue_team_reward_min": -2.0,
+          "policy_blue_team_reward_max": 1.9800000190734863,
+          "policy_blue_team_reward_mean": 1.1394000053405762,
+          "policy_blue_team_total_games": 10,
+          "policy_blue_team_wins": 8,
+          "policy_blue_team_losses": 2,
+          "policy_blue_team_draws": 0,
+          "policy_blue_team_win_rate": 0.8
+        },
+        "orange_team": {
+          "policy_orange_team_reward_min": -2.0,
+          "policy_orange_team_reward_max": 1.9567999839782715,
+          "policy_orange_team_reward_mean": 1.1001200079917908,
+          "policy_orange_team_total_games": 10,
+          "policy_orange_team_wins": 8,
+          "policy_orange_team_losses": 2,
+          "policy_orange_team_draws": 0,
+          "policy_orange_team_win_rate": 0.8
+        }
+      }
+    },
+    "hist_stats": {
+      "compare_checkpoint_agent": {
+        "rewards": [
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          1.9335999488830566,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          1.943600058555603,
+          1.9759999513626099,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          1.9471999406814575,
+          -2.0
+        ],
+        "blue_team": {
+          "rewards": [
+            -2.0,
+            -2.0,
+            -2.0,
+            -2.0,
+            -2.0,
+            -2.0,
+            1.9759999513626099,
+            -2.0,
+            -2.0,
+            1.9471999406814575
+          ]
+        },
+        "orange_team": {
+          "rewards": [
+            -2.0,
+            -2.0,
+            1.9335999488830566,
+            -2.0,
+            -2.0,
+            1.943600058555603,
+            -2.0,
+            -2.0,
+            -2.0,
+            -2.0
+          ]
+        }
+      },
+      "ceia_baseline_agent": {
+        "rewards": [
+          1.9076000452041626,
+          1.913599967956543,
+          1.8796000480651855,
+          1.957200050354004,
+          1.9428000450134277,
+          -2.0,
+          1.7660000324249268,
+          1.9428000450134277,
+          1.88919997215271,
+          1.9199999570846558,
+          1.7547999620437622,
+          -2.0,
+          -2.0,
+          1.8672000169754028,
+          1.9567999839782715,
+          1.9800000190734863,
+          1.9043999910354614,
+          1.885200023651123,
+          -2.0,
+          1.9279999732971191
+        ],
+        "blue_team": {
+          "rewards": [
+            1.913599967956543,
+            1.957200050354004,
+            -2.0,
+            1.9428000450134277,
+            1.9199999570846558,
+            -2.0,
+            1.8672000169754028,
+            1.9800000190734863,
+            1.885200023651123,
+            1.9279999732971191
+          ]
+        },
+        "orange_team": {
+          "rewards": [
+            1.9076000452041626,
+            1.8796000480651855,
+            1.9428000450134277,
+            1.7660000324249268,
+            1.88919997215271,
+            1.7547999620437622,
+            -2.0,
+            1.9567999839782715,
+            1.9043999910354614,
+            -2.0
+          ]
+        }
+      },
+      "episode_reward": [
+        -0.0923999547958374,
+        -0.08640003204345703,
+        -0.12039995193481445,
+        -0.042799949645996094,
+        -0.057199954986572266,
+        -0.06640005111694336,
+        -0.23399996757507324,
+        -0.057199954986572266,
+        -0.11080002784729004,
+        -0.08000004291534424,
+        -0.2452000379562378,
+        -0.05639994144439697,
+        -0.024000048637390137,
+        -0.13279998302459717,
+        -0.043200016021728516,
+        -0.019999980926513672,
+        -0.09560000896453857,
+        -0.11479997634887695,
+        -0.05280005931854248,
+        -0.07200002670288086
+      ],
+      "episode_lengths": [
+        46,
+        43,
+        60,
+        22,
+        29,
+        33,
+        117,
+        29,
+        56,
+        40,
+        123,
+        28,
+        12,
+        67,
+        22,
+        10,
+        48,
+        58,
+        27,
+        36
+      ]
+    }
+  }
+}

@@ -1,0 +1,67 @@
+Failure # 1 (occurred at 2026-04-22_18-19-50)
+Traceback (most recent call last):
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/tune/trial_runner.py", line 718, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 688, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/_private/client_mode_hook.py", line 62, in wrapper
+    return func(*args, **kwargs)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/worker.py", line 1496, in get
+    raise value
+ray.exceptions.RayActorError: The actor died because of an error raised in its creation task, [36mray::PPO.__init__()[39m (pid=1532859, ip=170.140.140.223)
+  File "python/ray/_raylet.pyx", line 501, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 451, in ray._raylet.execute_task.function_executor
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/_private/function_manager.py", line 563, in actor_method_executor
+    return method(__ray_actor, *args, **kwargs)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer_template.py", line 123, in __init__
+    Trainer.__init__(self, config, env, logger_creator)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 548, in __init__
+    super().__init__(config, logger_creator)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/tune/trainable.py", line 98, in __init__
+    self.setup(copy.deepcopy(self.config))
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 709, in setup
+    self._init(self.config, self.env_creator)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer_template.py", line 150, in _init
+    self.workers = self._make_workers(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 791, in _make_workers
+    return WorkerSet(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/evaluation/worker_set.py", line 81, in __init__
+    remote_spaces = ray.get(self.remote_workers(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/_private/client_mode_hook.py", line 62, in wrapper
+    return func(*args, **kwargs)
+ray.exceptions.RayActorError: The actor died because of an error raised in its creation task, [36mray::RolloutWorker.__init__()[39m (pid=1532873, ip=170.140.140.223)
+OSError: [Errno 98] Address already in use
+
+During handling of the above exception, another exception occurred:
+
+[36mray::RolloutWorker.__init__()[39m (pid=1532873, ip=170.140.140.223)
+  File "python/ray/_raylet.pyx", line 490, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 497, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 501, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 451, in ray._raylet.execute_task.function_executor
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/_private/function_manager.py", line 563, in actor_method_executor
+    return method(__ray_actor, *args, **kwargs)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/evaluation/rollout_worker.py", line 594, in __init__
+    self.async_env: BaseEnv = BaseEnv.to_base_env(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/env/base_env.py", line 108, in to_base_env
+    env = _MultiAgentEnvToBaseEnv(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/env/base_env.py", line 402, in __init__
+    self.envs.append(self.make_env(len(self.envs)))
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/evaluation/rollout_worker.py", line 469, in make_env
+    env_creator(
+  File "/home/dmifsud/Projects/DRL/final_project/soccer-twos-starter/reward_shaping.py", line 469, in create_rllib_env_shaped
+    env = soccer_twos.make(**env_kwargs)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/soccer_twos/__init__.py", line 89, in make
+    unity_env = UnityEnvironment(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/mlagents_envs/environment.py", line 187, in __init__
+    self._communicator = self._get_communicator(worker_id, base_port, timeout_wait)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/mlagents_envs/environment.py", line 252, in _get_communicator
+    return RpcCommunicator(worker_id, base_port, timeout_wait)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/mlagents_envs/rpc_communicator.py", line 51, in __init__
+    self.create_server()
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/mlagents_envs/rpc_communicator.py", line 57, in create_server
+    self.check_port(self.port)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/mlagents_envs/rpc_communicator.py", line 86, in check_port
+    raise UnityWorkerInUseException(self.worker_id)
+mlagents_envs.exception.UnityWorkerInUseException: Couldn't start socket communication because worker number 5 is still in use. You may need to manually close a previously opened environment or use a different worker number.
+

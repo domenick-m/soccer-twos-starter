@@ -1,0 +1,56 @@
+Failure # 1 (occurred at 2026-04-22_18-13-30)
+Traceback (most recent call last):
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/tune/trial_runner.py", line 718, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 688, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/_private/client_mode_hook.py", line 62, in wrapper
+    return func(*args, **kwargs)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/worker.py", line 1496, in get
+    raise value
+ray.exceptions.RayActorError: The actor died because of an error raised in its creation task, [36mray::PPO.__init__()[39m (pid=4117652, ip=170.140.140.245)
+  File "python/ray/_raylet.pyx", line 501, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 451, in ray._raylet.execute_task.function_executor
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/_private/function_manager.py", line 563, in actor_method_executor
+    return method(__ray_actor, *args, **kwargs)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer_template.py", line 123, in __init__
+    Trainer.__init__(self, config, env, logger_creator)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 548, in __init__
+    super().__init__(config, logger_creator)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/tune/trainable.py", line 98, in __init__
+    self.setup(copy.deepcopy(self.config))
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 709, in setup
+    self._init(self.config, self.env_creator)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer_template.py", line 150, in _init
+    self.workers = self._make_workers(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 791, in _make_workers
+    return WorkerSet(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/evaluation/worker_set.py", line 92, in __init__
+    self._local_worker = self._make_worker(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/evaluation/worker_set.py", line 367, in _make_worker
+    worker = cls(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/evaluation/rollout_worker.py", line 536, in __init__
+    self.policy_map, self.preprocessors = self._build_policy_map(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/evaluation/rollout_worker.py", line 1196, in _build_policy_map
+    policy_map[name] = cls(obs_space, act_space, merged_conf)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/policy/policy_template.py", line 256, in __init__
+    self.parent_cls.__init__(
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/ray/rllib/policy/torch_policy.py", line 162, in __init__
+    self.model_gpu_towers.append(model_copy.to(self.devices[i]))
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1145, in to
+    return self._apply(convert)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/torch/nn/modules/module.py", line 820, in _apply
+    param_applied = fn(param)
+  File "/home/dmifsud/miniconda3/envs/soccertwos/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1143, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: CUDA-capable device(s) is/are busy or unavailable
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+

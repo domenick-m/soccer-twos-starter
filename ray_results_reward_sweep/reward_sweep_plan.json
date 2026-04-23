@@ -1,0 +1,1226 @@
+{
+  "sweep_spec_path": "/home/dmifsud/Projects/DRL/final_project/soccer-twos-starter/reward_weight_sweep.json",
+  "probe_base_port": 56951,
+  "trial_count": 23,
+  "trials": [
+    {
+      "index": 0,
+      "label": "goal_event_only",
+      "run_name": "000_goal_event_only",
+      "source": "goal_event_only",
+      "train_base_port": 50039,
+      "eval_base_port": 53495,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.0,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.0,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.0,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.0,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.0,
+          "control_radius": 1.75,
+          "pass_bonus": 0.0
+        }
+      }
+    },
+    {
+      "index": 1,
+      "label": "default",
+      "run_name": "001_default",
+      "source": "default",
+      "train_base_port": 50167,
+      "eval_base_port": 53623,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 2,
+      "label": "dense_scale_0p5",
+      "run_name": "002_dense_scale_0p5",
+      "source": "joint_dense_scale",
+      "train_base_port": 50295,
+      "eval_base_port": 53751,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.005,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.005,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.005,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.005,
+          "control_radius": 1.75,
+          "pass_bonus": 0.01
+        }
+      }
+    },
+    {
+      "index": 3,
+      "label": "dense_scale_1p5",
+      "run_name": "003_dense_scale_1p5",
+      "source": "joint_dense_scale",
+      "train_base_port": 50423,
+      "eval_base_port": 53879,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.03,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.015,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.015,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.015,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.015,
+          "control_radius": 1.75,
+          "pass_bonus": 0.03
+        }
+      }
+    },
+    {
+      "index": 4,
+      "label": "dense_scale_2",
+      "run_name": "004_dense_scale_2",
+      "source": "joint_dense_scale",
+      "train_base_port": 50551,
+      "eval_base_port": 54007,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.04,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.02,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.02,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.02,
+          "control_radius": 1.75,
+          "pass_bonus": 0.04
+        }
+      }
+    },
+    {
+      "index": 5,
+      "label": "ball_vel_goal_w_0",
+      "run_name": "005_ball_vel_goal_w_0",
+      "source": "ball_velocity_to_goal.weight",
+      "train_base_port": 50679,
+      "eval_base_port": 54135,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.0,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 6,
+      "label": "ball_vel_goal_w_0p01",
+      "run_name": "006_ball_vel_goal_w_0p01",
+      "source": "ball_velocity_to_goal.weight",
+      "train_base_port": 50807,
+      "eval_base_port": 54263,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 7,
+      "label": "ball_vel_goal_w_0p04",
+      "run_name": "007_ball_vel_goal_w_0p04",
+      "source": "ball_velocity_to_goal.weight",
+      "train_base_port": 50935,
+      "eval_base_port": 54391,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.04,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 8,
+      "label": "goal_dist_w_0",
+      "run_name": "008_goal_dist_w_0",
+      "source": "goal_distance.weight",
+      "train_base_port": 51063,
+      "eval_base_port": 54519,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.0,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 9,
+      "label": "goal_dist_w_0p005",
+      "run_name": "009_goal_dist_w_0p005",
+      "source": "goal_distance.weight",
+      "train_base_port": 51191,
+      "eval_base_port": 54647,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.005,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 10,
+      "label": "goal_dist_w_0p02",
+      "run_name": "010_goal_dist_w_0p02",
+      "source": "goal_distance.weight",
+      "train_base_port": 51319,
+      "eval_base_port": 54775,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.02,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 11,
+      "label": "goal_vel_w_0",
+      "run_name": "011_goal_vel_w_0",
+      "source": "goal_velocity.weight",
+      "train_base_port": 51447,
+      "eval_base_port": 54903,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.0,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 12,
+      "label": "goal_vel_w_0p005",
+      "run_name": "012_goal_vel_w_0p005",
+      "source": "goal_velocity.weight",
+      "train_base_port": 51575,
+      "eval_base_port": 55031,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.005,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 13,
+      "label": "goal_vel_w_0p02",
+      "run_name": "013_goal_vel_w_0p02",
+      "source": "goal_velocity.weight",
+      "train_base_port": 51703,
+      "eval_base_port": 55159,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 14,
+      "label": "spacing_w_0",
+      "run_name": "014_spacing_w_0",
+      "source": "teammate_spacing.weight",
+      "train_base_port": 51831,
+      "eval_base_port": 55287,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.0,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 15,
+      "label": "spacing_w_0p005",
+      "run_name": "015_spacing_w_0p005",
+      "source": "teammate_spacing.weight",
+      "train_base_port": 51959,
+      "eval_base_port": 55415,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.005,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 16,
+      "label": "spacing_w_0p02",
+      "run_name": "016_spacing_w_0p02",
+      "source": "teammate_spacing.weight",
+      "train_base_port": 52087,
+      "eval_base_port": 55543,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.02,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 17,
+      "label": "poss_w_0",
+      "run_name": "017_poss_w_0",
+      "source": "possession_balance.weight",
+      "train_base_port": 52215,
+      "eval_base_port": 55671,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.0,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 18,
+      "label": "poss_w_0p005",
+      "run_name": "018_poss_w_0p005",
+      "source": "possession_balance.weight",
+      "train_base_port": 52343,
+      "eval_base_port": 55799,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.005,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 19,
+      "label": "poss_w_0p02",
+      "run_name": "019_poss_w_0p02",
+      "source": "possession_balance.weight",
+      "train_base_port": 52471,
+      "eval_base_port": 55927,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.02,
+          "control_radius": 1.75,
+          "pass_bonus": 0.02
+        }
+      }
+    },
+    {
+      "index": 20,
+      "label": "pass_bonus_0",
+      "run_name": "020_pass_bonus_0",
+      "source": "possession_balance.pass_bonus",
+      "train_base_port": 52599,
+      "eval_base_port": 56055,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.0
+        }
+      }
+    },
+    {
+      "index": 21,
+      "label": "pass_bonus_0p01",
+      "run_name": "021_pass_bonus_0p01",
+      "source": "possession_balance.pass_bonus",
+      "train_base_port": 52727,
+      "eval_base_port": 56183,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.01
+        }
+      }
+    },
+    {
+      "index": 22,
+      "label": "pass_bonus_0p04",
+      "run_name": "022_pass_bonus_0p04",
+      "source": "possession_balance.pass_bonus",
+      "train_base_port": 52855,
+      "eval_base_port": 56311,
+      "reward_shaping": {
+        "goal_event": {
+          "enabled": true,
+          "scale": 3.0,
+          "threshold": 0.5
+        },
+        "ball_proximity": {
+          "enabled": false,
+          "weight": 0.005,
+          "distance_scale": 20.0
+        },
+        "ball_velocity_to_goal": {
+          "enabled": true,
+          "weight": 0.02,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_distance": {
+          "enabled": true,
+          "weight": 0.01,
+          "distance_scale": 32.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "goal_velocity": {
+          "enabled": true,
+          "weight": 0.01,
+          "speed_scale": 10.0,
+          "goal_x": 16.0,
+          "goal_y": 0.0
+        },
+        "teammate_spacing": {
+          "enabled": true,
+          "weight": 0.01,
+          "target_distance": 6.0,
+          "tolerance": 4.0
+        },
+        "possession_balance": {
+          "enabled": true,
+          "weight": 0.01,
+          "control_radius": 1.75,
+          "pass_bonus": 0.04
+        }
+      }
+    }
+  ]
+}
