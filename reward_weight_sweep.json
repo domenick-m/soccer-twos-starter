@@ -1,0 +1,13 @@
+{
+  "include_goal_event_only": true,
+  "include_default": true,
+  "joint_dense_weight_scales": [0.5, 1.5, 2.0],
+  "weight_sweeps": {
+    "ball_velocity_to_goal.weight": [0.0, 0.01, 0.04],
+    "goal_distance.weight": [0.0, 0.005, 0.02],
+    "goal_velocity.weight": [0.0, 0.005, 0.02],
+    "teammate_spacing.weight": [0.0, 0.005, 0.02],
+    "possession_balance.weight": [0.0, 0.005, 0.02],
+    "possession_balance.pass_bonus": [0.0, 0.01, 0.04]
+  }
+}

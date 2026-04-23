@@ -462,6 +462,9 @@ def create_rllib_env_shaped(env_config: Optional[Mapping[str, Any]] = None):
             + env_config.vector_index
         )
     env_kwargs.pop("reward_shaping", None)
+    for key in list(env_kwargs.keys()):
+        if isinstance(key, str) and key.startswith("_"):
+            env_kwargs.pop(key, None)
 
     env = soccer_twos.make(**env_kwargs)
     env = RewardShapingWrapper(env, reward_config=shaping_config)

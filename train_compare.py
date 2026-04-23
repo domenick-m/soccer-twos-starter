@@ -318,17 +318,30 @@ def evaluate_against_ceia(
             print(f"\n=== Reusing cached evaluation: {run_name} vs ceia_baseline_agent ===")
             print(pretty_print(cached_payload["result"]))
             print(f"[cached] {payload_path}")
-            return
+            return cached_payload
 
+    previous_checkpoint_path = os.environ.get("SOCCER_CHECKPOINT_PATH")
+    previous_agent_name = os.environ.get("SOCCER_AGENT_NAME")
     os.environ["SOCCER_CHECKPOINT_PATH"] = checkpoint_path
     os.environ["SOCCER_AGENT_NAME"] = run_name
 
-    result = evaluate_matchup(
-        CHECKPOINT_AGENT_MODULE,
-        CEIA_AGENT_MODULE,
-        n_episodes=eval_episodes,
-        base_port=eval_base_port,
-    )
+    try:
+        result = evaluate_matchup(
+            CHECKPOINT_AGENT_MODULE,
+            CEIA_AGENT_MODULE,
+            n_episodes=eval_episodes,
+            base_port=eval_base_port,
+        )
+    finally:
+        if previous_checkpoint_path is None:
+            os.environ.pop("SOCCER_CHECKPOINT_PATH", None)
+        else:
+            os.environ["SOCCER_CHECKPOINT_PATH"] = previous_checkpoint_path
+
+        if previous_agent_name is None:
+            os.environ.pop("SOCCER_AGENT_NAME", None)
+        else:
+            os.environ["SOCCER_AGENT_NAME"] = previous_agent_name
 
     payload = {
         "run_name": run_name,
@@ -347,6 +360,7 @@ def evaluate_against_ceia(
     print("\n=== Evaluation summary ===")
     print(pretty_print(payload["result"]))
     print(f"[saved] {payload_path}")
+    return payload
 
 
 def run_one(
