@@ -29,11 +29,13 @@ import socket
 import tempfile
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from glob import glob
+from itertools import product
 from typing import Any, Dict, List, Mapping, Optional
 
 import ray
 from ray import tune
 from ray.tune.callback import Callback
+from ray.rllib.agents.ppo import PPOTrainer
 from soccer_twos import EnvType
 
 from reward_shaping import create_rllib_env_shaped, get_default_reward_shaping_config
@@ -71,13 +73,13 @@ def default_policy_mapping_fn(_):
     return "default"
 
 
-def parse_intlike_nonnegative(value: str) -> int:
+def parse_nonnegative_float(value: str) -> float:
     parsed = float(value)
-    if parsed < 0 or not parsed.is_integer():
+    if parsed < 0:
         raise argparse.ArgumentTypeError(
-            "Expected a non-negative integer value, e.g. 0 or 1."
+            "Expected a non-negative value, e.g. 0, 0.5, or 1."
         )
-    return int(parsed)
+    return parsed
 
 
 def parse_args():
@@ -86,11 +88,11 @@ def parse_args():
     parser.add_argument("--num-workers", type=int, default=8)
     parser.add_argument(
         "--num-gpus",
-        type=parse_intlike_nonnegative,
-        default=1,
+        type=parse_nonnegative_float,
+        default=1.0,
         help=(
-            "GPUs per PPO trial. RLlib 1.4 expects this to be an integer; "
-            "fractional values are not supported here."
+            "GPUs per PPO trial. Use fractional values (e.g. 0.5, 0.25) "
+            "to pack multiple trials onto one GPU."
         ),
     )
     parser.add_argument(
@@ -242,6 +244,7 @@ def validate_resource_args(args):
 
 def default_sweep_spec() -> Dict[str, Any]:
     return {
+        "sweep_mode": "one_at_a_time",
         "include_goal_event_only": True,
         "include_default": True,
         "joint_dense_weight_scales": [0.5, 1.5, 2.0],
@@ -330,51 +333,86 @@ def build_trial_specs(spec: Mapping[str, Any]) -> List[Dict[str, Any]]:
     if not weight_sweeps:
         raise ValueError("Sweep spec must define at least one entry in `weight_sweeps`.")
 
+    sweep_mode = str(spec.get("sweep_mode", "one_at_a_time")).strip().lower()
+    valid_modes = {"one_at_a_time", "cartesian"}
+    if sweep_mode not in valid_modes:
+        raise ValueError(
+            f"Unsupported sweep_mode {sweep_mode!r}. Expected one of: {sorted(valid_modes)}"
+        )
+
     dense_paths = list(weight_sweeps.keys())
     trial_specs: List[Dict[str, Any]] = []
 
-    if spec.get("include_goal_event_only", True):
-        config = copy.deepcopy(defaults)
-        zero_dense_weights(config, dense_paths)
-        trial_specs.append(
-            {
-                "label": "goal_event_only",
-                "reward_shaping": config,
-                "source": "goal_event_only",
-            }
-        )
-
-    if spec.get("include_default", True):
-        trial_specs.append(
-            {
-                "label": "default",
-                "reward_shaping": copy.deepcopy(defaults),
-                "source": "default",
-            }
-        )
-
-    for scale in spec.get("joint_dense_weight_scales", []):
-        config = copy.deepcopy(defaults)
-        scale_dense_weights(config, dense_paths, float(scale))
-        trial_specs.append(
-            {
-                "label": f"dense_scale_{format_value_label(scale)}",
-                "reward_shaping": config,
-                "source": "joint_dense_scale",
-            }
-        )
-
-    for path, values in weight_sweeps.items():
-        for value in values:
+    include_reference_trials = (
+        sweep_mode != "cartesian"
+        or spec.get("include_reference_trials_in_cartesian", False)
+    )
+    if include_reference_trials:
+        if spec.get("include_goal_event_only", True):
             config = copy.deepcopy(defaults)
-            set_nested_value(config, path, value)
+            zero_dense_weights(config, dense_paths)
             trial_specs.append(
                 {
-                    "label": make_weight_sweep_label(path, value),
+                    "label": "goal_event_only",
                     "reward_shaping": config,
-                    "source": path,
+                    "source": "goal_event_only",
                 }
             )
+
+        if spec.get("include_default", True):
+            trial_specs.append(
+                {
+                    "label": "default",
+                    "reward_shaping": copy.deepcopy(defaults),
+                    "source": "default",
+                }
+            )
+
+        for scale in spec.get("joint_dense_weight_scales", []):
+            config = copy.deepcopy(defaults)
+            scale_dense_weights(config, dense_paths, float(scale))
+            trial_specs.append(
+                {
+                    "label": f"dense_scale_{format_value_label(scale)}",
+                    "reward_shaping": config,
+                    "source": "joint_dense_scale",
+                }
+            )
+
+    if sweep_mode == "cartesian":
+        sweep_paths = list(weight_sweeps.keys())
+        sweep_values = []
+        for path in sweep_paths:
+            values = weight_sweeps[path]
+            if not isinstance(values, list) or not values:
+                raise ValueError(
+                    f"weight_sweeps[{path!r}] must be a non-empty list for cartesian mode."
+                )
+            sweep_values.append(values)
+
+        for combo_index, combo in enumerate(product(*sweep_values)):
+            config = copy.deepcopy(defaults)
+            for path, value in zip(sweep_paths, combo):
+                set_nested_value(config, path, value)
+            trial_specs.append(
+                {
+                    "label": f"grid_{combo_index:04d}",
+                    "reward_shaping": config,
+                    "source": "cartesian_grid",
+                }
+            )
+    else:
+        for path, values in weight_sweeps.items():
+            for value in values:
+                config = copy.deepcopy(defaults)
+                set_nested_value(config, path, value)
+                trial_specs.append(
+                    {
+                        "label": make_weight_sweep_label(path, value),
+                        "reward_shaping": config,
+                        "source": path,
+                    }
+                )
 
     deduped_specs: List[Dict[str, Any]] = []
     seen_fingerprints = set()
@@ -514,7 +552,7 @@ def build_tune_config(
     obs_space,
     act_space,
     num_workers: int,
-    num_gpus: int,
+    num_gpus: float,
     trial_specs,
     timesteps: int,
 ):
@@ -936,6 +974,20 @@ class LiveSweepSummaryCallback(Callback):
         self._update_row(trial, status="ERROR")
 
 
+class FractionalGPUPPO(PPOTrainer):
+    """PPO variant that supports fractional num_gpus for Ray scheduling.
+
+    default_resource_request() is a class method called before __init__, so
+    it correctly reads the fractional value from the config for placement-group
+    scheduling. setup() then converts num_gpus to an integer before RLlib
+    creates policies, avoiding the range(float) TypeError in torch_policy.py.
+    """
+
+    def setup(self, config):
+        config["num_gpus"] = int(config["num_gpus"] > 0)
+        super().setup(config)
+
+
 def init_ray(args):
     desired_num_cpus = max(1, args.parallel_trials) * max(1, args.num_workers + 1)
     detected_num_cpus = os.cpu_count() or desired_num_cpus
@@ -1214,7 +1266,7 @@ def main():
             f"timesteps={args.timesteps}, parallel_trials~{args.parallel_trials} ==="
         )
         analysis = tune.run(
-            "PPO",
+            FractionalGPUPPO,
             name=args.experiment_name,
             config=config,
             stop={"timesteps_total": args.timesteps},
