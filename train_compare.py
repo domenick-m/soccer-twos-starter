@@ -50,6 +50,15 @@ CEIA_AGENT_MODULE = "ceia_baseline_agent"
 CHECKPOINT_AGENT_MODULE = "compare_checkpoint_agent"
 PROBE_WORKER_ID_START = 1000
 PROBE_WORKER_ID_ATTEMPTS = 32
+EVAL_AGENT1_PORT_OFFSET = 0
+EVAL_AGENT2_PORT_OFFSET = 32
+EVAL_MATCH_PORT_OFFSET = 64
+
+
+def offset_base_port(base_port: Optional[int], offset: int) -> Optional[int]:
+    if base_port is None:
+        return None
+    return base_port + offset
 
 
 def build_config(
@@ -287,9 +296,19 @@ def evaluate_matchup(
     import soccer_twos
     from soccer_twos.evaluate import collect_episodes, load_agent
 
-    agent1 = load_agent(agent1_module_name, base_port=base_port)
-    agent2 = load_agent(agent2_module_name, base_port=base_port)
-    env = soccer_twos.make(base_port=base_port)
+    # Agent construction opens short-lived Unity envs. Keep those ports separate
+    # from the actual evaluation env so gRPC has time to release listeners.
+    agent1 = load_agent(
+        agent1_module_name,
+        base_port=offset_base_port(base_port, EVAL_AGENT1_PORT_OFFSET),
+    )
+    agent2 = load_agent(
+        agent2_module_name,
+        base_port=offset_base_port(base_port, EVAL_AGENT2_PORT_OFFSET),
+    )
+    env = soccer_twos.make(
+        base_port=offset_base_port(base_port, EVAL_MATCH_PORT_OFFSET),
+    )
     try:
         episodes = collect_episodes(env, agent1, agent2, n_episodes)
     finally:

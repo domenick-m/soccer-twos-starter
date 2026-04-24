@@ -27,11 +27,13 @@ import os
 import re
 import socket
 import tempfile
+import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from glob import glob
 from itertools import product
 from typing import Any, Dict, List, Mapping, Optional
 
+from mlagents_envs.exception import UnityWorkerInUseException
 import ray
 from ray import tune
 from ray.tune.callback import Callback
@@ -58,6 +60,8 @@ DEFAULT_SPEC_PATH = os.path.join(
     "reward_weight_sweep.json",
 )
 ENV_NAME = "SoccerRewardSweep"
+EVAL_PORT_BLOCK_SIZE = 96
+EVAL_PORT_RETRY_ATTEMPTS = 4
 PATH_LABELS = {
     "ball_velocity_to_goal.weight": "ball_vel_goal_w",
     "goal_distance.weight": "goal_dist_w",
@@ -81,6 +85,11 @@ def parse_nonnegative_float(value: str) -> float:
             "Expected a non-negative value, e.g. 0, 0.5, or 1."
         )
     return parsed
+
+
+def rllib_policy_num_gpus(num_gpus: float) -> int:
+    """Use ints because this RLlib version passes num_gpus into range()."""
+    return int(num_gpus > 0)
 
 
 def parse_args():
@@ -430,6 +439,34 @@ def build_trial_specs(spec: Mapping[str, Any]) -> List[Dict[str, Any]]:
     return deduped_specs
 
 
+def port_is_free(port: int) -> bool:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind(("127.0.0.1", port))
+        return True
+    except OSError:
+        return False
+    finally:
+        sock.close()
+
+
+def port_block_is_free(base_port: int, block_size: int) -> bool:
+    if base_port < 1 or base_port + block_size - 1 > 65535:
+        return False
+    return all(port_is_free(base_port + offset) for offset in range(block_size))
+
+
+def find_free_port_block(start_port: int, block_size: int) -> int:
+    candidate = start_port
+    while candidate + block_size - 1 <= 65535:
+        if port_block_is_free(candidate, block_size):
+            return candidate
+        candidate += block_size
+    raise RuntimeError(
+        f"Could not find a free port block of size {block_size} starting from {start_port}."
+    )
+
+
 def assign_ports(
     trial_specs: List[Dict[str, Any]],
     base_port_start: int,
@@ -439,31 +476,6 @@ def assign_ports(
 ) -> int:
     if not trial_specs:
         raise ValueError("No sweep trials were generated.")
-
-    def port_is_free(port: int) -> bool:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            sock.bind(("127.0.0.1", port))
-            return True
-        except OSError:
-            return False
-        finally:
-            sock.close()
-
-    def port_block_is_free(base_port: int, block_size: int) -> bool:
-        if base_port < 1 or base_port + block_size - 1 > 65535:
-            return False
-        return all(port_is_free(base_port + offset) for offset in range(block_size))
-
-    def find_free_port_block(start_port: int, block_size: int) -> int:
-        candidate = start_port
-        while candidate + block_size - 1 <= 65535:
-            if port_block_is_free(candidate, block_size):
-                return candidate
-            candidate += block_size
-        raise RuntimeError(
-            f"Could not find a free port block of size {block_size} starting from {start_port}."
-        )
 
     next_train_base_port = find_free_port_block(base_port_start, port_stride)
 
@@ -502,7 +514,10 @@ def build_trial_dirname(trial):
     return trial.config["env_config"]["_sweep_meta"]["run_name"]
 
 
-def build_env_config_from_trial_spec(trial_spec: Mapping[str, Any]) -> Dict[str, Any]:
+def build_env_config_from_trial_spec(
+    trial_spec: Mapping[str, Any],
+    resource_num_gpus: float,
+) -> Dict[str, Any]:
     return {
         "num_envs_per_worker": NUM_ENVS_PER_WORKER,
         "variation": EnvType.multiagent_player,
@@ -516,6 +531,7 @@ def build_env_config_from_trial_spec(trial_spec: Mapping[str, Any]) -> Dict[str,
             "train_base_port": trial_spec["train_base_port"],
             "eval_base_port": trial_spec["eval_base_port"],
             "assigned_cuda_device": trial_spec.get("assigned_cuda_device"),
+            "resource_num_gpus": resource_num_gpus,
         },
     }
 
@@ -559,7 +575,7 @@ def build_tune_config(
     timesteps: int,
 ):
     config = {
-        "num_gpus": num_gpus,
+        "num_gpus": rllib_policy_num_gpus(num_gpus),
         "num_workers": num_workers,
         "num_envs_per_worker": NUM_ENVS_PER_WORKER,
         "log_level": "WARN",
@@ -573,7 +589,13 @@ def build_tune_config(
         },
         "env": ENV_NAME,
         "env_config": tune.grid_search(
-            [build_env_config_from_trial_spec(trial_spec) for trial_spec in trial_specs]
+            [
+                build_env_config_from_trial_spec(
+                    trial_spec,
+                    resource_num_gpus=num_gpus,
+                )
+                for trial_spec in trial_specs
+            ]
         ),
     }
     ppo_overrides = small_timestep_ppo_overrides(
@@ -979,11 +1001,25 @@ class LiveSweepSummaryCallback(Callback):
 class FractionalGPUPPO(PPOTrainer):
     """PPO variant that supports fractional num_gpus for Ray scheduling.
 
-    default_resource_request() is a class method called before __init__, so
-    it correctly reads the fractional value from the config for placement-group
-    scheduling. setup() then converts num_gpus to an integer before RLlib
-    creates policies, avoiding the range(float) TypeError in torch_policy.py.
+    The trainable config gives RLlib policies an integer num_gpus value while
+    per-trial metadata preserves the fractional amount for Ray placement.
     """
+
+    _allow_unknown_configs = True
+
+    @classmethod
+    def default_resource_request(cls, config):
+        resource_config = dict(config)
+        env_config = resource_config.get("env_config", {})
+        sweep_meta = (
+            env_config.get("_sweep_meta", {})
+            if isinstance(env_config, Mapping)
+            else {}
+        )
+        resource_num_gpus = sweep_meta.get("resource_num_gpus")
+        if resource_num_gpus is not None:
+            resource_config["num_gpus"] = resource_num_gpus
+        return PPOTrainer.default_resource_request(resource_config)
 
     def setup(self, config):
         # Explicitly assign the physical GPU for this trial so Ray's fractional
@@ -991,8 +1027,16 @@ class FractionalGPUPPO(PPOTrainer):
         assigned = config.get("env_config", {}).get("_sweep_meta", {}).get("assigned_cuda_device")
         if assigned is not None:
             os.environ["CUDA_VISIBLE_DEVICES"] = str(assigned)
-        config["num_gpus"] = int(config["num_gpus"] > 0)
+        config["num_gpus"] = rllib_policy_num_gpus(config["num_gpus"])
         super().setup(config)
+
+    def _init(self, config, env_creator):
+        # Trainer.setup() merges config into self.config after setup() runs, so
+        # we must also convert here - this is the last point before torch_policy.py
+        # calls range(config["num_gpus"]) which cannot accept a float.
+        config["num_gpus"] = rllib_policy_num_gpus(config["num_gpus"])
+        self.config["num_gpus"] = rllib_policy_num_gpus(self.config["num_gpus"])
+        super()._init(config, env_creator)
 
 
 def init_ray(args):
@@ -1037,13 +1081,30 @@ def run_ceia_eval_task(
     eval_episodes: int,
     eval_base_port: int,
 ) -> Dict[str, Any]:
-    return evaluate_against_ceia(
-        checkpoint_path=checkpoint_path,
-        run_name=run_name,
-        local_dir=local_dir,
-        eval_episodes=eval_episodes,
-        eval_base_port=eval_base_port,
-    )
+    next_candidate = eval_base_port
+    for attempt in range(1, EVAL_PORT_RETRY_ATTEMPTS + 1):
+        try:
+            return evaluate_against_ceia(
+                checkpoint_path=checkpoint_path,
+                run_name=run_name,
+                local_dir=local_dir,
+                eval_episodes=eval_episodes,
+                eval_base_port=next_candidate,
+            )
+        except UnityWorkerInUseException:
+            if attempt == EVAL_PORT_RETRY_ATTEMPTS:
+                raise
+            next_candidate = find_free_port_block(
+                next_candidate + EVAL_PORT_BLOCK_SIZE,
+                EVAL_PORT_BLOCK_SIZE,
+            )
+            print(
+                f"[eval] Port block starting at {eval_base_port} was busy for "
+                f"{run_name}; retrying with base port {next_candidate}."
+            )
+            time.sleep(1)
+
+    raise RuntimeError(f"CEIA evaluation retry loop exhausted for {run_name}.")
 
 
 def evaluate_trials(
@@ -1195,7 +1256,17 @@ def main():
     if args.eval_parallelism < 1:
         raise ValueError("--eval-parallelism must be at least 1.")
 
-    min_reasonable_stride = max(16, args.num_workers * NUM_ENVS_PER_WORKER + 8)
+    local_worker_stride = (
+        args.parallel_trials * NUM_ENVS_PER_WORKER + 8
+        if args.num_workers == 0
+        else 0
+    )
+    min_reasonable_stride = max(
+        16,
+        EVAL_PORT_BLOCK_SIZE,
+        args.num_workers * NUM_ENVS_PER_WORKER + 8,
+        local_worker_stride,
+    )
     if args.port_stride < min_reasonable_stride:
         raise ValueError(
             f"--port-stride={args.port_stride} is too small for "
