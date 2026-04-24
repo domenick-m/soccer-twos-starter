@@ -54,7 +54,6 @@ dependencies:
       - googleapis-common-protos==1.73.0
       - gpustat==1.1.1
       - grpcio==1.70.0
-      - gym==0.19.0
       - gym-unity==0.27.0
       - h5py==3.11.0
       - hiredis==3.3.1
@@ -118,4 +117,4 @@ dependencies:
       - wrapt==2.0.1
       - yarl==1.15.2
       - zipp==3.20.2
-prefix: /home/cbwash2/miniconda3/envs/soccertwos
+prefix: ~/miniconda3/envs/soccertwos_clay
