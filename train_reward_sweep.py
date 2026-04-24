@@ -22,10 +22,12 @@ import argparse
 import copy
 import csv
 import json
+import math
 import os
 import re
 import socket
 import tempfile
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from glob import glob
 from typing import Any, Dict, List, Mapping, Optional
 
@@ -142,6 +144,15 @@ def parse_args():
         help="Port range reserved per trial. Keep this comfortably above num_workers*num_envs_per_worker.",
     )
     parser.add_argument("--eval-episodes", type=int, default=20)
+    parser.add_argument(
+        "--eval-parallelism",
+        type=int,
+        default=1,
+        help=(
+            "Number of concurrent CEIA evaluations after training. "
+            "Set >1 to parallelize post-training evaluation."
+        ),
+    )
     parser.add_argument(
         "--sweep-spec",
         default=DEFAULT_SPEC_PATH,
@@ -469,8 +480,45 @@ def build_env_config_from_trial_spec(trial_spec: Mapping[str, Any]) -> Dict[str,
     }
 
 
-def build_tune_config(obs_space, act_space, num_workers: int, num_gpus: int, trial_specs):
+def small_timestep_ppo_overrides(
+    timesteps: int,
+    num_workers: int,
+) -> Dict[str, int]:
+    """Keep smoke runs fast by shrinking PPO batch sizes when timesteps are tiny.
+
+    RLlib PPO defaults to train_batch_size=4000. For very small stop targets
+    (e.g. --timesteps 500), that default can make the first training iteration
+    take much longer than expected because Tune only checks stop criteria
+    between iterations. For normal training runs (timesteps >= 4000), we keep
+    RLlib defaults unchanged.
+    """
+    if timesteps >= 4000:
+        return {}
+
+    effective_workers = max(1, num_workers)
+    effective_env_runners = effective_workers * max(1, NUM_ENVS_PER_WORKER)
+    train_batch_size = max(effective_env_runners, max(1, timesteps))
+    rollout_fragment_length = max(
+        1,
+        int(math.ceil(train_batch_size / float(effective_env_runners))),
+    )
+    sgd_minibatch_size = min(128, train_batch_size)
     return {
+        "train_batch_size": train_batch_size,
+        "rollout_fragment_length": rollout_fragment_length,
+        "sgd_minibatch_size": sgd_minibatch_size,
+    }
+
+
+def build_tune_config(
+    obs_space,
+    act_space,
+    num_workers: int,
+    num_gpus: int,
+    trial_specs,
+    timesteps: int,
+):
+    config = {
         "num_gpus": num_gpus,
         "num_workers": num_workers,
         "num_envs_per_worker": NUM_ENVS_PER_WORKER,
@@ -488,6 +536,19 @@ def build_tune_config(obs_space, act_space, num_workers: int, num_gpus: int, tri
             [build_env_config_from_trial_spec(trial_spec) for trial_spec in trial_specs]
         ),
     }
+    ppo_overrides = small_timestep_ppo_overrides(
+        timesteps=timesteps,
+        num_workers=num_workers,
+    )
+    if ppo_overrides:
+        print(
+            "[ppo] small-timestep mode: "
+            f"train_batch_size={ppo_overrides['train_batch_size']}, "
+            f"rollout_fragment_length={ppo_overrides['rollout_fragment_length']}, "
+            f"sgd_minibatch_size={ppo_overrides['sgd_minibatch_size']}"
+        )
+        config.update(ppo_overrides)
+    return config
 
 
 def evaluation_json_path(local_dir: str, run_name: str) -> str:
@@ -790,11 +851,13 @@ class LiveSweepSummaryCallback(Callback):
         local_dir: str,
         eval_episodes: int,
         skip_eval: bool,
+        enable_live_eval: bool,
         summary_csv_path: str,
     ):
         self.local_dir = local_dir
         self.eval_episodes = eval_episodes
         self.skip_eval = skip_eval
+        self.enable_live_eval = enable_live_eval
         self.summary_csv_path = summary_csv_path
         self.run_names = [trial_spec["run_name"] for trial_spec in trial_specs]
         self.trial_specs_by_name = {
@@ -844,7 +907,7 @@ class LiveSweepSummaryCallback(Callback):
         checkpoint_path = latest_checkpoint_path_or_none(trial.logdir)
         eval_payload = None
 
-        if not self.skip_eval and checkpoint_path is not None:
+        if self.enable_live_eval and (not self.skip_eval) and checkpoint_path is not None:
             print(
                 f"\n=== Live CEIA evaluation for {run_name} "
                 f"(base_port={trial_spec['eval_base_port']}) ==="
@@ -908,58 +971,160 @@ def init_ray(args):
     ray.init(**ray_kwargs)
 
 
+def run_ceia_eval_task(
+    checkpoint_path: str,
+    run_name: str,
+    local_dir: str,
+    eval_episodes: int,
+    eval_base_port: int,
+) -> Dict[str, Any]:
+    return evaluate_against_ceia(
+        checkpoint_path=checkpoint_path,
+        run_name=run_name,
+        local_dir=local_dir,
+        eval_episodes=eval_episodes,
+        eval_base_port=eval_base_port,
+    )
+
+
 def evaluate_trials(
     trials: List[Any],
     trial_specs: List[Dict[str, Any]],
     local_dir: str,
     eval_episodes: int,
     skip_eval: bool,
+    eval_parallelism: int,
     summary_csv_path: str,
 ):
-    rows: List[Dict[str, Any]] = []
+    if eval_parallelism < 1:
+        raise ValueError("--eval-parallelism must be at least 1.")
+
+    rows_by_name: Dict[str, Dict[str, Any]] = {}
+    ordered_run_names = [trial_spec["run_name"] for trial_spec in trial_specs]
     trials_by_name = {trial_result_run_name(trial): trial for trial in trials}
 
+    def write_partial_rows():
+        ordered_rows = [
+            rows_by_name[run_name]
+            for run_name in ordered_run_names
+            if run_name in rows_by_name
+        ]
+        write_summary_csv(ordered_rows, summary_csv_path)
+
     ray.shutdown()
+    eval_tasks: List[Dict[str, Any]] = []
     for trial_spec in trial_specs:
         trial = trials_by_name[trial_spec["run_name"]]
         checkpoint_path = None
-        eval_payload = None
 
         try:
             checkpoint_path = latest_checkpoint_path(trial.logdir)
         except FileNotFoundError:
             checkpoint_path = None
 
-        if (
+        should_eval = (
             not skip_eval
             and trial.status == "TERMINATED"
             and checkpoint_path is not None
-        ):
-            print(
-                f"\n=== Evaluating {trial_spec['run_name']} vs ceia_baseline_agent "
-                f"(base_port={trial_spec['eval_base_port']}) ==="
+        )
+        if should_eval:
+            eval_tasks.append(
+                {
+                    "trial": trial,
+                    "trial_spec": trial_spec,
+                    "checkpoint_path": checkpoint_path,
+                }
             )
-            try:
-                eval_payload = evaluate_against_ceia(
-                    checkpoint_path=checkpoint_path,
-                    run_name=trial_spec["run_name"],
-                    local_dir=local_dir,
-                    eval_episodes=eval_episodes,
-                    eval_base_port=trial_spec["eval_base_port"],
-                )
-            finally:
-                ray.shutdown()
+            continue
 
         row = build_summary_row(
             trial=trial,
             trial_spec=trial_spec,
             checkpoint_path=checkpoint_path,
-            eval_payload=eval_payload,
+            eval_payload=None,
             local_dir=local_dir,
         )
-        rows.append(row)
-        write_summary_csv(rows, summary_csv_path)
+        rows_by_name[trial_spec["run_name"]] = row
+        write_partial_rows()
 
+    if eval_tasks:
+        if eval_parallelism == 1:
+            for task in eval_tasks:
+                trial = task["trial"]
+                trial_spec = task["trial_spec"]
+                checkpoint_path = task["checkpoint_path"]
+
+                print(
+                    f"\n=== Evaluating {trial_spec['run_name']} vs ceia_baseline_agent "
+                    f"(base_port={trial_spec['eval_base_port']}) ==="
+                )
+                try:
+                    eval_payload = run_ceia_eval_task(
+                        checkpoint_path=checkpoint_path,
+                        run_name=trial_spec["run_name"],
+                        local_dir=local_dir,
+                        eval_episodes=eval_episodes,
+                        eval_base_port=trial_spec["eval_base_port"],
+                    )
+                finally:
+                    ray.shutdown()
+
+                row = build_summary_row(
+                    trial=trial,
+                    trial_spec=trial_spec,
+                    checkpoint_path=checkpoint_path,
+                    eval_payload=eval_payload,
+                    local_dir=local_dir,
+                )
+                rows_by_name[trial_spec["run_name"]] = row
+                write_partial_rows()
+        else:
+            print(
+                f"[eval] Running {len(eval_tasks)} CEIA evaluations in parallel "
+                f"(max_workers={eval_parallelism})."
+            )
+            max_workers = min(eval_parallelism, len(eval_tasks))
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                future_to_task = {}
+                for task in eval_tasks:
+                    trial_spec = task["trial_spec"]
+                    checkpoint_path = task["checkpoint_path"]
+                    future = executor.submit(
+                        run_ceia_eval_task,
+                        checkpoint_path,
+                        trial_spec["run_name"],
+                        local_dir,
+                        eval_episodes,
+                        trial_spec["eval_base_port"],
+                    )
+                    future_to_task[future] = task
+
+                for future in as_completed(future_to_task):
+                    task = future_to_task[future]
+                    trial = task["trial"]
+                    trial_spec = task["trial_spec"]
+                    checkpoint_path = task["checkpoint_path"]
+
+                    try:
+                        eval_payload = future.result()
+                    except Exception as exc:
+                        for pending in future_to_task:
+                            pending.cancel()
+                        raise RuntimeError(
+                            f"Parallel CEIA evaluation failed for {trial_spec['run_name']}."
+                        ) from exc
+
+                    row = build_summary_row(
+                        trial=trial,
+                        trial_spec=trial_spec,
+                        checkpoint_path=checkpoint_path,
+                        eval_payload=eval_payload,
+                        local_dir=local_dir,
+                    )
+                    rows_by_name[trial_spec["run_name"]] = row
+                    write_partial_rows()
+
+    rows = [rows_by_name[trial_spec["run_name"]] for trial_spec in trial_specs]
     return rows
 
 
@@ -968,6 +1133,8 @@ def main():
     os.makedirs(args.local_dir, exist_ok=True)
     configure_visible_gpus(args)
     validate_resource_args(args)
+    if args.eval_parallelism < 1:
+        raise ValueError("--eval-parallelism must be at least 1.")
 
     min_reasonable_stride = max(16, args.num_workers * NUM_ENVS_PER_WORKER + 8)
     if args.port_stride < min_reasonable_stride:
@@ -1025,12 +1192,20 @@ def main():
             num_workers=args.num_workers,
             num_gpus=args.num_gpus,
             trial_specs=trial_specs,
+            timesteps=args.timesteps,
         )
+        enable_live_eval = args.eval_parallelism == 1
+        if not args.skip_eval and not enable_live_eval:
+            print(
+                f"[eval] Disabling live per-trial eval and deferring to "
+                f"post-training parallel eval (eval_parallelism={args.eval_parallelism})."
+            )
         live_summary_callback = LiveSweepSummaryCallback(
             trial_specs=trial_specs,
             local_dir=args.local_dir,
             eval_episodes=args.eval_episodes,
             skip_eval=args.skip_eval,
+            enable_live_eval=enable_live_eval,
             summary_csv_path=summary_csv_path,
         )
 
@@ -1062,6 +1237,7 @@ def main():
         local_dir=args.local_dir,
         eval_episodes=args.eval_episodes,
         skip_eval=args.skip_eval,
+        eval_parallelism=args.eval_parallelism,
         summary_csv_path=summary_csv_path,
     )
 
