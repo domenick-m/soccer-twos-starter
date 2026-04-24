@@ -66,6 +66,7 @@ PATH_LABELS = {
     "possession_balance.weight": "poss_w",
     "possession_balance.pass_bonus": "pass_bonus",
     "ball_proximity.weight": "ball_prox_w",
+    "defensive_positioning.weight": "def_pos_w",
 }
 
 
@@ -514,6 +515,7 @@ def build_env_config_from_trial_spec(trial_spec: Mapping[str, Any]) -> Dict[str,
             "source": trial_spec["source"],
             "train_base_port": trial_spec["train_base_port"],
             "eval_base_port": trial_spec["eval_base_port"],
+            "assigned_cuda_device": trial_spec.get("assigned_cuda_device"),
         },
     }
 
@@ -984,6 +986,11 @@ class FractionalGPUPPO(PPOTrainer):
     """
 
     def setup(self, config):
+        # Explicitly assign the physical GPU for this trial so Ray's fractional
+        # scheduling actually spreads work across GPUs instead of piling onto GPU 0.
+        assigned = config.get("env_config", {}).get("_sweep_meta", {}).get("assigned_cuda_device")
+        if assigned is not None:
+            os.environ["CUDA_VISIBLE_DEVICES"] = str(assigned)
         config["num_gpus"] = int(config["num_gpus"] > 0)
         super().setup(config)
 
@@ -1208,6 +1215,14 @@ def main():
         eval_base_port_start=args.eval_base_port_start,
         probe_base_port=args.probe_base_port,
     )
+
+    # assign_ports sets trial_spec["index"], so GPU round-robin must come after
+    selected_gpu_ids = parse_gpu_ids(args.gpu_ids)
+    if selected_gpu_ids:
+        for trial_spec in trial_specs:
+            trial_spec["assigned_cuda_device"] = str(
+                selected_gpu_ids[trial_spec["index"] % len(selected_gpu_ids)]
+            )
 
     plan_path = os.path.join(args.local_dir, "reward_sweep_plan.json")
     summary_csv_path = os.path.join(args.local_dir, "reward_sweep_summary.csv")

@@ -1,0 +1,88 @@
+{
+  "env": "SoccerRewardSweep",
+  "env_config": {
+    "_sweep_meta": {
+      "assigned_cuda_device": "5",
+      "eval_base_port": 53527,
+      "index": 34,
+      "label": "grid_0034",
+      "run_name": "034_grid_0034",
+      "source": "cartesian_grid",
+      "train_base_port": 51543
+    },
+    "base_port": 51543,
+    "num_envs_per_worker": 3,
+    "reward_shaping": {
+      "ball_proximity": {
+        "distance_scale": 20.0,
+        "enabled": false,
+        "weight": 0.005
+      },
+      "ball_velocity_to_goal": {
+        "enabled": true,
+        "goal_x": 16.0,
+        "goal_y": 0.0,
+        "speed_scale": 10.0,
+        "weight": 0.01
+      },
+      "defensive_positioning": {
+        "enabled": true,
+        "goal_x": 16.0,
+        "goal_y": 0.0,
+        "lateral_scale": 8.0,
+        "weight": 0.01
+      },
+      "goal_distance": {
+        "distance_scale": 32.0,
+        "enabled": true,
+        "goal_x": 16.0,
+        "goal_y": 0.0,
+        "weight": 0.01
+      },
+      "goal_event": {
+        "enabled": true,
+        "scale": 5.0,
+        "threshold": 0.5
+      },
+      "goal_velocity": {
+        "enabled": true,
+        "goal_x": 16.0,
+        "goal_y": 0.0,
+        "speed_scale": 10.0,
+        "weight": 0.01
+      },
+      "possession_balance": {
+        "control_radius": 1.75,
+        "enabled": true,
+        "pass_bonus": 0.02,
+        "weight": 0.01
+      },
+      "teammate_spacing": {
+        "enabled": true,
+        "target_distance": 6.0,
+        "tolerance": 4.0,
+        "weight": 0.01
+      }
+    },
+    "variation": "EnvType.multiagent_player"
+  },
+  "framework": "torch",
+  "log_level": "WARN",
+  "multiagent": {
+    "policies": {
+      "default": [
+        null,
+        "Box([-inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf\n -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf], [inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf\n inf inf inf inf inf inf inf inf inf inf inf inf], (336,), float32)",
+        "MultiDiscrete([3 3 3])",
+        {}
+      ]
+    },
+    "policies_to_train": [
+      "default"
+    ],
+    "policy_mapping_fn": "<function default_policy_mapping_fn at 0x7f62d5d3d9d0>"
+  },
+  "num_envs_per_worker": 3,
+  "num_gpus": 0.05,
+  "num_workers": 4
+}

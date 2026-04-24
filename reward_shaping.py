@@ -101,6 +101,13 @@ DEFAULT_REWARD_SHAPING_CONFIG: Dict[str, Dict[str, Any]] = {
         "control_radius": 1.75,
         "pass_bonus": 0.02,
     },
+    "defensive_positioning": {
+        "enabled": True,
+        "weight": 0.01,
+        "lateral_scale": 8.0,
+        "goal_x": 16.0,
+        "goal_y": 0.0,
+    },
 }
 
 
@@ -187,6 +194,7 @@ class RewardShapingWrapper(gym.core.Wrapper):
         self._apply_teammate_spacing_reward(shaped, agent_states)
         self._apply_ball_velocity_to_goal_reward(shaped, agent_states)
         self._apply_possession_balance_reward(shaped, agent_states)
+        self._apply_defensive_positioning_reward(shaped, agent_states)
 
         return obs, shaped, done, info
 
@@ -376,6 +384,51 @@ class RewardShapingWrapper(gym.core.Wrapper):
             for agent_id in agent_ids:
                 if agent_id in shaped:
                     shaped[agent_id] += team_bonus
+
+    def _apply_defensive_positioning_reward(
+        self,
+        shaped: Dict[Any, float],
+        agent_states: Dict[int, Dict[str, np.ndarray]],
+    ):
+        config = self.reward_config["defensive_positioning"]
+        if not config.get("enabled", False):
+            return
+
+        weight = float(config.get("weight", 0.0))
+        lateral_scale = float(config.get("lateral_scale", 8.0))
+        if weight == 0.0 or lateral_scale <= 0:
+            return
+
+        shared_ball_state = self._shared_ball_state(agent_states)
+        if shared_ball_state is None:
+            return
+
+        ball_position = shared_ball_state["ball_position"]
+
+        for agent_id, state in agent_states.items():
+            team_id = AGENT_TO_TEAM.get(agent_id)
+            if team_id is None:
+                continue
+
+            # Own goal = goal this team is defending (opposite of attack direction)
+            own_goal_x = -float(config.get("goal_x", 16.0)) * TEAM_ATTACK_SIGN[team_id]
+            own_goal = np.asarray([own_goal_x, float(config.get("goal_y", 0.0))], dtype=np.float32)
+
+            ball_to_goal = own_goal - ball_position
+            ball_to_goal_norm = float(np.linalg.norm(ball_to_goal))
+            if ball_to_goal_norm <= 1e-8:
+                continue
+
+            ball_to_goal_dir = ball_to_goal / ball_to_goal_norm
+            player_from_ball = state["player_position"] - ball_position
+
+            # along > 0 means player is on the goal side of the ball (between ball and own goal)
+            along = float(np.dot(player_from_ball, ball_to_goal_dir))
+            if along <= 0:
+                continue
+
+            lateral = float(np.linalg.norm(player_from_ball - along * ball_to_goal_dir))
+            shaped[agent_id] += weight * _positive_unit_score(lateral, lateral_scale)
 
     def _infer_controller(
         self,
