@@ -109,7 +109,7 @@ dependencies:
       - tensorboard==2.14.0
       - tensorboard-data-server==0.7.2
       - tensorboardx==2.6.2.2
-      - torch==1.9.1+cu111
+      - torch==1.8.1
       - typing-extensions==4.13.2
       - urllib3==2.2.3
       - wcwidth==0.6.0
