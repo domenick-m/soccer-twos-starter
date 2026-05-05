@@ -1,6 +1,12 @@
-# Soccer-Twos Starter Kit
+# real_playas SoccerTwos Agent
 
-Example training/testing scripts for the Soccer-Twos environment. This starter code is modified from the example code provided in https://github.com/bryanoliveira/soccer-twos-starter.
+**Agent name:** real_playas
+
+**Authors:** Nathan Govindarajan (ngovindarajan7@gatech.edu), Domenick Mifsud (dmifsud3@gatech.edu), Clay Washington (claytonbwashington@gatech.edu)
+
+## Description
+
+PPO agent trained on Soccer-Twos with reward shaping: goal-event amplification and a ball-proximity dense bonus. Trained via multi-agent self-play with a single shared policy using RLlib defaults.
 
 Environment-level specification code can be found at https://github.com/bryanoliveira/soccer-twos-env, which may also be useful to reference.
 
